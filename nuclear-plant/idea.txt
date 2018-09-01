@@ -75,7 +75,7 @@ without getting close or over critical pressure
 
 if pressure (aka temperature) goes too high, chamber bursts and reactor melts down
 
-reactor is "shut down" if 
+reactor is "shut down" if activity is below a threshold for a length of time
 
 
 three puzzles, increasing difficulty:
