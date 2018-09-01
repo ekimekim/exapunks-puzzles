@@ -1,0 +1,98 @@
+nuclear reactor based puzzle
+
+layout:
+host connected to control room
+control room connects to a water pump room on left,
+turbine room on right
+both those connect to chamber cap running along top
+chamber cap, water room and turbine room all connect to reactor chamber
+   ___________
+  |___________|
+ __I   _I_   I__
+|   | |   |-|   |
+|   |-|___| |   |
+|___|       |___|
+ __I_________I__
+|               |
+|_______________|
+              I
+            local
+
+or something like that.
+
+
+control room contains control rod hardware reg,
+read to get control rod setting, write -1 or +1 to change it.
+water pump has pump reg to control water flow rate
+turbine room has output reg for water output temperature
+cap room has output chamber pressure
+undecided: reactor may contain geiger counter showing activity,
+but reactor should not be enterable (all links not traversable)
+maybe also contain some cosmetics: control rod regs (showing same output as main one)
+and files containing fuel cells
+
+entire system is a dynamic, per cycle simulation.
+relevant variables are:
+chamber temperature
+activity
+water flow rate
+water input temperature
+water output temperature
+control rod setting
+
+in formulae below,
+assume there's also tweakable coefficients to affect relative strength of each term
+
+the activity is a function of the previous activity and control rod:
+activity(t) = (passive + rolling average(prev activity)) * control rod coefficient based on setting
+control rod coefficient should be between 0 and 1 (but never perfectly 0), decreasing with
+increasing setting, such that max setting fairly quickly scrams the reactor (reduces activity
+to near zero) and min setting fairly quickly causes exponential increase.
+rolling average is meant to represent prompt vs delayed neutrons by putting heavy emphasis
+on recent activity and then a long tail of past activity.
+note activity is unstable (almost impossible to get perfectly balanced, will either
+decrease or increase over time in positive feedback loop).
+the idea is that you have to actively manage it.
+
+chamber pressure is directly correlated to temperature, it's basically just a way
+of displaying the temperature.
+temperature(t) = temperature(t-1) + increase from activity - decrease from cooling
+decrease from cooling = flow rate * (difference between input and output temperature)
+input temperature is arbitrary and constant, might as well be 0
+output temperature = temperature(t-1)
+note this means that d/dt of temperature = activity - flow * temperature,
+and so with constant activity and flow, temperature = activity / flow + k e^-(flow * t),
+ie. the temperature will asymtote to a value proportional to activity and inversely proportional to flow.
+
+power output = flow rate * (output temperature - base output temperature)
+base output temperature should be 100C to represent steam at air pressure
+
+note that higher flow rates make temperature level out quicker and lowers it,
+but lower temperatures suffer more losses to base output temperature,
+which means needing to drive more activity, which is harder to control.
+but a flow rate too low might not be able to deliver enough power
+without getting close or over critical pressure
+
+if pressure (aka temperature) goes too high, chamber bursts and reactor melts down
+
+reactor is "shut down" if 
+
+
+three puzzles, increasing difficulty:
+	basic safety: watch pressure and SCRAM (control rods to max, pumps to full) if too high
+		NPC is controlling rods/pumps
+	constant output: controlling only control rods, regulate output for target temperature
+	variable output: manage control rods and pumps to manage activity, temperature, and power output
+		so that power output is within a % of requested output. request changes over time.
+		will always end in shutting down the reactor (requested power = 0).
+		goal is to have power within % of requested output for X cycles, so getting there quicker/
+		being more accurate gives you improved cycle count.
+
+narrative:
+	your incompetent cousin is a tech at a nuclear plant, lied on his resume, needs you to hack in
+	and manage reactor so he isn't caught.
+	exa control system exists because corp is paying big $$$ for high tech new control software,
+	but it's not ready yet, so in the meantime they have human techs working.
+	you need to do the human's jobs. early puzzles have humans doing tasks you aren't
+	(eg. "i'm controlling the reactor but i don't want to blow shit up, watch my back" for first task,
+	then later becomes "control the whole thing for me")
