@@ -41,7 +41,7 @@ Min rods should cause rapid growth.
 	(200 or so from cold start)
 
 Max flow rate should not be able to combat out of control activity
-	5 seems about right. It has a ton of trouble once activity exceeds 100-150 range.
+	Seems about right. It has a ton of trouble once activity exceeds 1000-ish.
 
 Max rods and flow rate should be able to effectively SCRAM the reactor
 """
