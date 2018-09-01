@@ -11,10 +11,10 @@ Inputs = namedtuple('Inputs', ['rodmotor', 'flow'])
 State = namedtuple('State', ['rods', 'temp', 'avg_activity'])
 Outputs = namedtuple('Outputs', ['rod_coeff', 'water_temp', 'activity', 'pressure', 'power'])
 
-PASSIVE_ACTIVITY = 1
+PASSIVE_ACTIVITY = 10
 AVG_ACTIVITY_DECAY = 10
 AVG_ACTIVITY_COEFF = 1.3
-ACTIVITY_TO_TEMP_COEFF = 1
+ACTIVITY_TO_TEMP_COEFF = 0.1
 BASE_WATER_TEMP = 100
 HEAT_FLOW_COEFF = 0.01
 HEAT_LOSS = 1
