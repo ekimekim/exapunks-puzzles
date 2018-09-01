@@ -1,0 +1,15 @@
+A repo for managing and developing exapunks custom puzzles.
+
+Each puzzle is a js file under ~/.local/share/EXAPUNKS/<steam id>/custom/
+
+In this repo, puzzles are normally-named files in the local directory,
+which get 'installed' according to saved associations.
+
+This is managed via the manage.py tool, with the following commands:
+	python manage.py configure STEAMID
+		This writes the steam id to a file steamid, to avoid checking it in anywhere.
+	python manage.py associate GAME_FILE LOCAL_FILE
+		This copies the existing GAME_FILE to LOCAL_FILE, and saves the association
+		in file associations.json
+	python manage.py install {LOCAL_FILE}
+		Copies given (or all) files to game directory files associated with them.
