@@ -16,9 +16,10 @@ AVG_ACTIVITY_DECAY = 10
 AVG_ACTIVITY_COEFF = 1.3
 ACTIVITY_TO_TEMP_COEFF = 0.1
 BASE_WATER_TEMP = 373
-HEAT_FLOW_COEFF = 0.01
+HEAT_FLOW_COEFF = 0.0005
 HEAT_LOSS = 1
 BASE_HEAT = 300
+FLOW_POWER_COEFF = 0.05
 
 FULL_IN_ROD_COEFF = 0.4
 FULL_OUT_ROD_COEFF = 1
@@ -26,7 +27,7 @@ FULL_OUT_ROD_COEFF = 1
 MAX_RODS = 1000
 ROD_STEP = 1
 
-MAX_FLOW = 5
+MAX_FLOW = 100
 
 """
 Notes
@@ -60,7 +61,7 @@ def step(inputs, state):
 		- HEAT_FLOW_COEFF * inputs.flow * (water_temp - BASE_HEAT)
 		- HEAT_LOSS
 	)
-	power = inputs.flow * max(0, water_temp - BASE_WATER_TEMP)
+	power = inputs.flow * max(0, water_temp - BASE_WATER_TEMP) * FLOW_POWER_COEFF
 	return State(rods, temp, avg_activity), Outputs(rod_coeff, water_temp, activity, temp, power)
 
 
