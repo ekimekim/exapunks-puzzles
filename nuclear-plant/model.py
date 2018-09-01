@@ -15,9 +15,10 @@ PASSIVE_ACTIVITY = 10
 AVG_ACTIVITY_DECAY = 10
 AVG_ACTIVITY_COEFF = 1.3
 ACTIVITY_TO_TEMP_COEFF = 0.1
-BASE_WATER_TEMP = 100
+BASE_WATER_TEMP = 373
 HEAT_FLOW_COEFF = 0.01
 HEAT_LOSS = 1
+BASE_HEAT = 300
 
 FULL_IN_ROD_COEFF = 0.4
 FULL_OUT_ROD_COEFF = 1
@@ -44,7 +45,7 @@ Max flow rate should not be able to combat out of control activity
 Max rods and flow rate should be able to effectively SCRAM the reactor
 """
 
-INITIAL_STATE = State(MAX_RODS, 0, 0)
+INITIAL_STATE = State(MAX_RODS, BASE_HEAT, 0)
 
 def step(inputs, state):
 	"""Returns state, outputs"""
@@ -53,10 +54,10 @@ def step(inputs, state):
 	activity = (PASSIVE_ACTIVITY + AVG_ACTIVITY_COEFF * state.avg_activity) * rod_coeff
 	avg_activity = (state.avg_activity * AVG_ACTIVITY_DECAY + activity) / (AVG_ACTIVITY_DECAY + 1)
 	water_temp = state.temp
-	temp = max(0,
+	temp = max(BASE_HEAT,
 		state.temp
 		+ ACTIVITY_TO_TEMP_COEFF * activity
-		- HEAT_FLOW_COEFF * inputs.flow * water_temp
+		- HEAT_FLOW_COEFF * inputs.flow * (water_temp - BASE_HEAT)
 		- HEAT_LOSS
 	)
 	power = inputs.flow * max(0, water_temp - BASE_WATER_TEMP)
