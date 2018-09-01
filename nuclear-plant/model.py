@@ -9,7 +9,7 @@ import textgraph
 
 Inputs = namedtuple('Inputs', ['rodmotor', 'flow'])
 State = namedtuple('State', ['rods', 'temp', 'avg_activity'])
-Outputs = namedtuple('Outputs', ['water_temp', 'activity', 'pressure', 'power'])
+Outputs = namedtuple('Outputs', ['rod_coeff', 'water_temp', 'activity', 'pressure', 'power'])
 
 PASSIVE_ACTIVITY = 1
 AVG_ACTIVITY_DECAY = 10
@@ -19,10 +19,11 @@ BASE_WATER_TEMP = 100
 HEAT_FLOW_COEFF = 0.01
 HEAT_LOSS = 1
 
-# note max and min is switched here, as full rods = lowest activity coefficient
-MAX_RODS = 0.4
-MIN_RODS = 1
-ROD_STEP = 0.005
+FULL_IN_ROD_COEFF = 0.4
+FULL_OUT_ROD_COEFF = 1
+
+MAX_RODS = 1000
+ROD_STEP = 6
 
 MAX_FLOW = 5
 
@@ -47,8 +48,9 @@ INITIAL_STATE = State(MAX_RODS, 0, 0)
 
 def step(inputs, state):
 	"""Returns state, outputs"""
-	rods = min(MIN_RODS, max(MAX_RODS, state.rods + ROD_STEP * (inputs.rodmotor - 10)))
-	activity = (PASSIVE_ACTIVITY + AVG_ACTIVITY_COEFF * state.avg_activity) * rods
+	rods = min(MAX_RODS, max(0, state.rods + ROD_STEP * (inputs.rodmotor - 10)))
+	rod_coeff = FULL_OUT_ROD_COEFF - (FULL_OUT_ROD_COEFF - FULL_IN_ROD_COEFF) * rods / MAX_RODS
+	activity = (PASSIVE_ACTIVITY + AVG_ACTIVITY_COEFF * state.avg_activity) * rod_coeff
 	avg_activity = (state.avg_activity * AVG_ACTIVITY_DECAY + activity) / (AVG_ACTIVITY_DECAY + 1)
 	water_temp = state.temp
 	temp = max(0,
@@ -58,7 +60,7 @@ def step(inputs, state):
 		- HEAT_LOSS
 	)
 	power = inputs.flow * max(0, water_temp - BASE_WATER_TEMP)
-	return State(rods, temp, avg_activity), Outputs(water_temp, activity, temp, power)
+	return State(rods, temp, avg_activity), Outputs(rod_coeff, water_temp, activity, temp, power)
 
 
 def constant(rods=1., flow=0.):
@@ -99,6 +101,7 @@ def table():
 	COLS = [
 		('rctrl', 'rodmotor'),
 		('rods', 'rods'),
+		('rcoef', 'rod_coeff'),
 		('flow', 'flow'),
 		('act', 'activity'),
 		('actav', 'avg_activity'),
@@ -120,7 +123,8 @@ def table():
 def graph(width=97):
 	HEIGHT = 4
 	ITEMS = [
-		'rodmotor', 'rods', 'flow', 'activity', 'avg_activity', 'temp', 'water_temp', 'power'
+		'rodmotor', 'rods', 'rod_coeff', 'flow', 'activity', 'avg_activity',
+		'temp', 'water_temp', 'power'
 	]
 	values = {}
 	while True:
