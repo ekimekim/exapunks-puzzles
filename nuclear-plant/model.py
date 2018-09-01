@@ -7,8 +7,8 @@ import math
 import textgraph
 
 
-Inputs = namedtuple('Inputs', ['rods', 'flow'])
-State = namedtuple('State', ['temp', 'avg_activity'])
+Inputs = namedtuple('Inputs', ['rodmotor', 'flow'])
+State = namedtuple('State', ['rods', 'temp', 'avg_activity'])
 Outputs = namedtuple('Outputs', ['water_temp', 'activity', 'pressure', 'power'])
 
 PASSIVE_ACTIVITY = 1
@@ -19,11 +19,10 @@ BASE_WATER_TEMP = 100
 HEAT_FLOW_COEFF = 0.01
 HEAT_LOSS = 1
 
-INITIAL_STATE = State(0, 0)
-
 # note max and min is switched here, as full rods = lowest activity coefficient
 MAX_RODS = 0.4
 MIN_RODS = 1
+ROD_STEP = 0.005
 
 MAX_FLOW = 5
 
@@ -44,10 +43,12 @@ Max flow rate should not be able to combat out of control activity
 Max rods and flow rate should be able to effectively SCRAM the reactor
 """
 
+INITIAL_STATE = State(MAX_RODS, 0, 0)
 
 def step(inputs, state):
 	"""Returns state, outputs"""
-	activity = (PASSIVE_ACTIVITY + AVG_ACTIVITY_COEFF * state.avg_activity) * inputs.rods
+	rods = min(MIN_RODS, max(MAX_RODS, state.rods + ROD_STEP * (inputs.rodmotor - 10)))
+	activity = (PASSIVE_ACTIVITY + AVG_ACTIVITY_COEFF * state.avg_activity) * rods
 	avg_activity = (state.avg_activity * AVG_ACTIVITY_DECAY + activity) / (AVG_ACTIVITY_DECAY + 1)
 	water_temp = state.temp
 	temp = max(0,
@@ -57,15 +58,21 @@ def step(inputs, state):
 		- HEAT_LOSS
 	)
 	power = inputs.flow * max(0, water_temp - BASE_WATER_TEMP)
-	return State(temp, avg_activity), Outputs(water_temp, activity, temp, power)
+	return State(rods, temp, avg_activity), Outputs(water_temp, activity, temp, power)
 
 
 def constant(rods=1., flow=0.):
 	flow, rods = map(float, (flow, rods))
-	inputs = Inputs(rods, flow)
-	yield inputs
+	inputs = Inputs(1, flow)
+	state, outputs = yield inputs
 	while True:
 		state, outputs = yield inputs
+		motor = 10
+		if state.rods < rods:
+			motor = 20
+		elif state.rods > rods:
+			motor = 0
+		inputs = Inputs(motor, flow)
 
 
 def scram(scram_at, rods=1., flow=0.):
@@ -73,16 +80,24 @@ def scram(scram_at, rods=1., flow=0.):
 	and flow is set to max.
 	"""
 	flow, rods, scram_at = map(float, (flow, rods, scram_at))
-	inputs = Inputs(rods, flow)
+	inputs = Inputs(1, flow)
 	yield inputs
 	while True:
 		state, outputs = yield inputs
 		if state.temp > scram_at:
-			inputs = Inputs(MAX_RODS, MAX_FLOW)
+			rods = MAX_RODS
+			flow = MAX_FLOW
+		motor = 10
+		if state.rods < rods:
+			motor = 20
+		elif state.rods > rods:
+			motor = 0
+		inputs = Inputs(motor, flow)
 
 
 def table():
 	COLS = [
+		('rctrl', 'rodmotor'),
 		('rods', 'rods'),
 		('flow', 'flow'),
 		('act', 'activity'),
@@ -105,7 +120,7 @@ def table():
 def graph(width=97):
 	HEIGHT = 4
 	ITEMS = [
-		'rods', 'flow', 'activity', 'avg_activity', 'temp', 'water_temp', 'power'
+		'rodmotor', 'rods', 'flow', 'activity', 'avg_activity', 'temp', 'water_temp', 'power'
 	]
 	values = {}
 	while True:
