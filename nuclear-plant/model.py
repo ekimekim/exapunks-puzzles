@@ -23,7 +23,7 @@ FULL_IN_ROD_COEFF = 0.4
 FULL_OUT_ROD_COEFF = 1
 
 MAX_RODS = 1000
-ROD_STEP = 6
+ROD_STEP = 1
 
 MAX_FLOW = 5
 
@@ -48,7 +48,7 @@ INITIAL_STATE = State(MAX_RODS, 0, 0)
 
 def step(inputs, state):
 	"""Returns state, outputs"""
-	rods = min(MAX_RODS, max(0, state.rods + ROD_STEP * (inputs.rodmotor - 10)))
+	rods = min(MAX_RODS, max(0, state.rods + ROD_STEP * (inputs.rodmotor - 50)))
 	rod_coeff = FULL_OUT_ROD_COEFF - (FULL_OUT_ROD_COEFF - FULL_IN_ROD_COEFF) * rods / MAX_RODS
 	activity = (PASSIVE_ACTIVITY + AVG_ACTIVITY_COEFF * state.avg_activity) * rod_coeff
 	avg_activity = (state.avg_activity * AVG_ACTIVITY_DECAY + activity) / (AVG_ACTIVITY_DECAY + 1)
@@ -69,11 +69,7 @@ def constant(rods=1., flow=0.):
 	state, outputs = yield inputs
 	while True:
 		state, outputs = yield inputs
-		motor = 10
-		if state.rods < rods:
-			motor = 20
-		elif state.rods > rods:
-			motor = 0
+		motor = max(0, min(100, rods - state.rods + 50))
 		inputs = Inputs(motor, flow)
 
 
@@ -89,11 +85,7 @@ def scram(scram_at, rods=1., flow=0.):
 		if state.temp > scram_at:
 			rods = MAX_RODS
 			flow = MAX_FLOW
-		motor = 10
-		if state.rods < rods:
-			motor = 20
-		elif state.rods > rods:
-			motor = 0
+		motor = max(0, min(100, rods - state.rods + 50))
 		inputs = Inputs(motor, flow)
 
 
