@@ -94,13 +94,33 @@ def scram(scram_at, rods=1., flow=0.):
 
 def fixed_flow_power_target_simple(target, flow=50.):
 	"""Simple feedback loop, slowly extend/retract rods to control temp
-	to reach target power."""
+	to reach target power.
+	Yo-yos."""
 	target, flow = map(float, (target, flow))
 	inputs = Inputs(50, flow)
 	for i in itertools.count():
 		state, outputs = yield inputs
 		motor = max(40, min(60, (outputs.power - target) / 100 + 50))
 		inputs = Inputs(motor, flow)
+
+
+def fixed_flow_power_target(target, flow=50.):
+	"""Feedback loop that modifies target rod state, instead of motor directly.
+	Slows down rod modification in response to change in temperature
+	Very effective."""
+	target, flow = map(float, (target, flow))
+	rod_target = MAX_RODS
+	inputs = Inputs(50, flow)
+	prev_temp = BASE_HEAT
+	for i in itertools.count():
+		state, outputs = yield inputs
+		diff = target - outputs.power
+		dt = state.temp - prev_temp
+		prev_temp = state.temp
+		rod_target -= max(-10, min(10, diff/50.)) - 10*dt
+		motor = max(40, min(60, rod_target - state.rods + 50))
+		inputs = Inputs(motor, flow)
+
 
 
 def table():
