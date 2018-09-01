@@ -2,6 +2,7 @@
 """Model in python for testing and experimenting with balance"""
 
 from collections import namedtuple
+import itertools
 import math
 
 import textgraph
@@ -67,7 +68,7 @@ def step(inputs, state):
 
 def constant(rods=1., flow=0.):
 	flow, rods = map(float, (flow, rods))
-	inputs = Inputs(1, flow)
+	inputs = Inputs(50, flow)
 	state, outputs = yield inputs
 	while True:
 		state, outputs = yield inputs
@@ -80,7 +81,7 @@ def scram(scram_at, rods=1., flow=0.):
 	and flow is set to max.
 	"""
 	flow, rods, scram_at = map(float, (flow, rods, scram_at))
-	inputs = Inputs(1, flow)
+	inputs = Inputs(50, flow)
 	yield inputs
 	while True:
 		state, outputs = yield inputs
@@ -88,6 +89,17 @@ def scram(scram_at, rods=1., flow=0.):
 			rods = MAX_RODS
 			flow = MAX_FLOW
 		motor = max(0, min(100, rods - state.rods + 50))
+		inputs = Inputs(motor, flow)
+
+
+def fixed_flow_power_target_simple(target, flow=50.):
+	"""Simple feedback loop, slowly extend/retract rods to control temp
+	to reach target power."""
+	target, flow = map(float, (target, flow))
+	inputs = Inputs(50, flow)
+	for i in itertools.count():
+		state, outputs = yield inputs
+		motor = max(40, min(60, (outputs.power - target) / 100 + 50))
 		inputs = Inputs(motor, flow)
 
 
