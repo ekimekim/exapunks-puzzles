@@ -227,7 +227,7 @@ function onCycleFinished() {
 	clearWindow(stateWindow);
 	drawGauge(stateWindow, 45, "   Pump Rate", pumpRate, PUMP_MAX);
 	drawGauge(stateWindow, 45, "Control Rods", rodPosition, ROD_MAX);
-	drawGauge(stateWindow, 45, "    Activity", activity, MAX_STABLE_ACTIVITY);
+	drawGauge(stateWindow, 45, "Geiger Count", activity, MAX_STABLE_ACTIVITY);
 	drawGauge(stateWindow, 45, "    Pressure", temperature, FAIL_TEMPERATURE);
 	drawGauge(stateWindow, 45, "       Power", power, MAX_POWER);
 

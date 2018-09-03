@@ -2,7 +2,7 @@
 
 // constants
 var HEAT_SAFETY_MARGIN = 500;
-var STEADY_TIME = 1000;
+var STEADY_TIME = 500;
 
 // globals
 var powerTarget;
@@ -25,7 +25,17 @@ function getTitle() {
 
 
 function getDescription() {
-	return "TODO";
+	return (
+		"Read the power level in file 300. Using the control rods only, have the reactor " +
+		"output that approximate power level (up to 10% higher or lower) for at least " +
+		STEADY_TIME.toString() + " cycles. " +
+		"You may not adjust the pumping rate for this mission.\n" +
+		"When your task is complete, shut down the reactor by fully inserting the control rods, " +
+		"and remove all traces.\n" +
+		"Hint: Retracting the control rods will drive more geiger counter activity, which will cause " +
+		"pressure and power output to rise. But be careful! Geiger activity can be slow to respond " +
+		"and you may find yourself unable to adjust before the pressure reaches breaking point."
+	);
 }
 
 
