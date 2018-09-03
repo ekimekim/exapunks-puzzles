@@ -6,8 +6,8 @@ var STEADY_TIME = 1000;
 
 // globals
 var powerTarget;
-var onTargetCycles = 0;
-var goalReached = false;
+var onTargetCycles;
+var goalReached;
 
 // objects
 var noChangePumpGoal;
@@ -28,6 +28,9 @@ function getDescription() {
 
 
 function initScenario() {
+	onTargetCycles = 0;
+	goalReached = false;
+
 	noChangePumpGoal = requireCustomGoal("Do not modify pump rate");
 	mergeRequirements(2, "Do not modify pump rate or allow reactor to burst");
 	powerTargetGoal = requireCustomGoal("Maintain power within 10% of the given level for " + STEADY_TIME.toString() + " cycles");

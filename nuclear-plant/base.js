@@ -49,18 +49,11 @@ var SHUTDOWN_TIME = 50; // cycles we must be under thresholds for
 
 // Global vars
 // inputs
-var rodMotor = 50;
-var pumpRate = 0;
+var rodMotor, pumpRate;
 // state
-var rodPosition = ROD_MAX;
-var temperature = HEAT_BASE;
-var hasExploded = false;
-var shutdownCycles = 0;
-// initial avg_activity chosen such that it's already at equalibrium
-var avg_activity = ACTIVITY_FULL_ROD_EQUALIBRIUM;
+var rodPosition, temperature, hasExploded, shutdownCycles, avg_activity;
 // outputs
-var activity = avg_activity;
-var power = 0;
+var activity, power;
 
 // objects
 var controlRoom, pumpRoom, turbineRoom, reactorRoom, capRoom;
@@ -72,6 +65,18 @@ var noExplodeGoal;
 
 
 function initializeTestRun(testRun) {
+	// init globals
+	rodMotor = 50;
+	pumpRate = 0;
+	temperature = HEAT_BASE;
+	rodPosition = ROD_MAX;
+	hasExploded = false;
+	shutdownCycles = 0;
+	// initial avg_activity chosen such that it's already at equalibrium
+	avg_activity = ACTIVITY_FULL_ROD_EQUALIBRIUM;
+	activity = avg_activity;
+	power = 0;
+
 	/*
 	Layout:
 		  ::::#::::
