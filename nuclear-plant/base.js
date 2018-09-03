@@ -85,18 +85,18 @@ function initializeTestRun(testRun) {
 		 |         |
 		 :::::#:::::
 		 :::::::::::
-		          |
-		         :::
-		         :::
-		         :::
-		           0
+		     |
+		    :::
+		    :::
+		    :::
+		      0
 	*/
 	// rooms
-	controlRoom = createHost("control",  5,  0, 2, 11);
-	pumpRoom    = createHost("pump",     9,  9, 4,  3);
-	turbineRoom = createHost("turbine",  9, -1, 4,  3);
-	reactorRoom = createHost("reactor", 10,  4, 3,  3);
-	capRoom     = createHost("cap",     15,  1, 1,  9);
+	controlRoom = createHost("control",  5, -5, 2, 11);
+	pumpRoom    = createHost("pump",     9,  4, 4,  3);
+	turbineRoom = createHost("turbine",  9, -6, 4,  3);
+	reactorRoom = createHost("reactor", 10, -1, 3,  3);
+	capRoom     = createHost("cap",     15, -4, 1,  9);
 	// links - note link location uncertain where many possible?
 	playerLink = createLink(getPlayerHost(), 800, controlRoom, -1);
 	controlPumpLink = createLink(controlRoom, 800, pumpRoom, -1);
@@ -107,18 +107,18 @@ function initializeTestRun(testRun) {
 	reactorTurbineLink = createLink(reactorRoom, LINK_ID_NONE, turbineRoom, LINK_ID_NONE);
 	reactorCapLink = createLink(reactorRoom, LINK_ID_NONE, capRoom, LINK_ID_NONE);
 	// regs
-	rodReg = createRegister(controlRoom, 6, 5, "CTRL");
-	pumpReg = createRegister(pumpRoom, 9, 11, "PUMP");
-	powerReg = createRegister(turbineRoom, 11, 1, "POWR");
-	pressureReg = createRegister(capRoom, 15, 5, "PRSS");
+	rodReg = createRegister(controlRoom, 6, 0, "CTRL");
+	pumpReg = createRegister(pumpRoom, 11, 4, "PUMP");
+	powerReg = createRegister(turbineRoom, 11, -4, "POWR");
+	pressureReg = createRegister(capRoom, 15, 0, "PRSS");
 	// inaccessible regs
 	reactorRodRegs = [
-		createRegister(reactorRoom, 12, 6, "ROD1"),
-		createRegister(reactorRoom, 10, 6, "ROD2"),
-		createRegister(reactorRoom, 12, 4, "ROD3"),
-		createRegister(reactorRoom, 10, 4, "ROD4")
+		createRegister(reactorRoom, 12, 1, "ROD1"),
+		createRegister(reactorRoom, 10, 1, "ROD2"),
+		createRegister(reactorRoom, 12, -1, "ROD3"),
+		createRegister(reactorRoom, 10, -1, "ROD4")
 	];
-	activityReg = createRegister(reactorRoom, 11, 5, "GEIG");
+	activityReg = createRegister(reactorRoom, 11, 0, "GEIG");
 	// inaccessible files
 	var fuelIcon = FILE_ICON_ARCHIVE;
 	reactorFiles = [
@@ -137,11 +137,11 @@ function initializeTestRun(testRun) {
 	setRegisterReadCallback(pumpReg, function() { return pumpRate; });
 	setRegisterWriteCallback(pumpReg, function(v) { pumpRate = clamp(0, v, PUMP_MAX); onWrite(pumpReg); });
 	setRegisterReadCallback(powerReg, function() { return power; });
-	setRegisterReadCallback(pressureReg, function() { return ifExplode(-9999, temperature); });
+	setRegisterReadCallback(pressureReg, function() { return ifExplode(0, temperature); });
 	// These regs can't be read, they're there so the in-game display shows the value
-	setRegisterReadCallback(activityReg, function() { return ifExplode(-9999, activity); });
+	setRegisterReadCallback(activityReg, function() { return ifExplode("???", activity); });
 	reactorRodRegs.forEach(function(reg) {
-		setRegisterReadCallback(reg, function() { return ifExplode(-9999, rodPosition); });
+		setRegisterReadCallback(reg, function() { return ifExplode("???", rodPosition); });
 	});
 
 	noExplodeGoal = requireCustomGoal("Do not allow the reactor to burst (pressure > " + FAIL_TEMPERATURE.toString() + ")");
@@ -167,7 +167,7 @@ function ifExplode(alt, value) {
 function onCycleFinished() {
 
 	// Move rods according to motor, and reset motor
-	rodPosition = clamp(0, rodPosition + rodMotor - 50, MAX_RODS);
+	rodPosition = clamp(0, rodPosition + rodMotor - 50, ROD_MAX);
 	rodMotor = 50;
 
 	// If we've exploded, freeze values at their final values
@@ -175,7 +175,7 @@ function onCycleFinished() {
 
 	// Calculate activity. Note rod damping coefficient ranges linearly with rod setting
 	// from ROD_FULL_COEFF at fully inserted to 1 at fully retracted.
-	rodCoeff = 1 - (1 - ROD_FULL_COEFF) * rodPosition / MAX_RODS;
+	rodCoeff = 1 - (1 - ROD_FULL_COEFF) * rodPosition / ROD_MAX;
 	activity = rodCoeff * (PASSIVE_ACTIVITY + avg_activity * AVG_ACTIVITY_COEFF);
 
 	// Update average activity for later ticks
