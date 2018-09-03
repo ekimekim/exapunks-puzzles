@@ -20,6 +20,9 @@ function getSubtitle() {
 			Reg will be one of rodReg or pumpReg.
 		onCycle()
 			Called during onCycleFinished(), unless reactor has exploded.
+		onShutdown()
+			Called each cycle the reactor is counted as "shut down", with activity
+			and heat below thresholds for 50 cycles in a row.
 */
 
 
@@ -30,13 +33,18 @@ var PUMP_MAX = 100;
 var PASSIVE_ACTIVITY = 10;
 var AVG_ACTIVITY_DECAY = 10;
 var AVG_ACTIVITY_COEFF = 1.3;
+// this is the value that activity will trend towards at full rods
+var ACTIVITY_FULL_ROD_EQUALIBRIUM = PASSIVE_ACTIVITY * ROD_FULL_COEFF / (1 - AVG_ACTIVITY_COEFF * ROD_FULL_COEFF);
 var ACTIVITY_TO_TEMP_COEFF = 0.1;
 var MIN_POWER_TEMP = 373;
 var HEAT_LOSS_FROM_PUMP_COEFF = 0.0005;
 var HEAT_LOSS_BASE = 1;
 var HEAT_BASE = 300;
-var PUMP_TO_POWER_COEFF = 0.05;
+var PUMP_TO_POWER_COEFF = 0.03; // scaled so max possible power < 9999
 var FAIL_TEMPERATURE = 3000;
+var SHUTDOWN_TEMPERATURE = 350;
+var SHUTDOWN_ACTIVITY = 5 * ACTIVITY_FULL_ROAD_EQUALIBRIUM;
+var SHUTDOWN_TIME = 50; // cycles we must be under thresholds for
 
 
 // Global vars
@@ -47,8 +55,9 @@ var pumpRate = 0;
 var rodPosition = ROD_MAX;
 var temperature = HEAT_BASE;
 var hasExploded = false;
+var shutdownCycles = 0;
 // initial avg_activity chosen such that it's already at equalibrium
-var avg_activity = PASSIVE_ACTIVITY * ROD_FULL_COEFF / (1 - AVG_ACTIVITY_COEFF * ROD_FULL_COEFF);
+var avg_activity = ACTIVITY_FULL_ROD_EQUALIBRIUM;
 // outputs
 var activity = avg_activity;
 var power = 0;
@@ -194,6 +203,16 @@ function onCycleFinished() {
 	}
 
 	onCycle();
+
+	// check if shutdown
+	if (temperature <= SHUTDOWN_TEMPERATURE && activity <= SHUTDOWN_ACTIVITY) {
+		shutdownCycles++;
+		if (shutdownCycles >= SHUTDOWN_TIME) {
+			onShutdown();
+		}
+	} else {
+		shutdownCycles = 0;
+	}
 
 }
 

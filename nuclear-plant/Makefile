@@ -1,4 +1,6 @@
 
+all: built1.js built2.js built3.js
+
 built1.js: base.js puzzle1.js
 	cat base.js puzzle1.js
 
