@@ -43,7 +43,7 @@ var HEAT_BASE = 300;
 var PUMP_TO_POWER_COEFF = 0.03; // scaled so max possible power < 9999
 var FAIL_TEMPERATURE = 3000;
 var SHUTDOWN_TEMPERATURE = 350;
-var SHUTDOWN_ACTIVITY = 5 * ACTIVITY_FULL_ROAD_EQUALIBRIUM;
+var SHUTDOWN_ACTIVITY = 5 * ACTIVITY_FULL_ROD_EQUALIBRIUM;
 var SHUTDOWN_TIME = 50; // cycles we must be under thresholds for
 
 
@@ -92,36 +92,36 @@ function initializeTestRun(testRun) {
 		           0
 	*/
 	// rooms
-	var controlRoom = createHost("control",  5,  0, 2, 11);
-	var pumpRoom    = createHost("pump",     9,  9, 4,  3);
-	var turbineRoom = createHost("turbine",  9, -1, 4,  3);
-	var reactorRoom = createHost("reactor", 10,  4, 3,  3);
-	var capRoom = createHost("cap",     15,  1, 1,  9);
+	controlRoom = createHost("control",  5,  0, 2, 11);
+	pumpRoom    = createHost("pump",     9,  9, 4,  3);
+	turbineRoom = createHost("turbine",  9, -1, 4,  3);
+	reactorRoom = createHost("reactor", 10,  4, 3,  3);
+	capRoom     = createHost("cap",     15,  1, 1,  9);
 	// links - note link location uncertain where many possible?
-	var playerLink = createLink(getPlayerHost(), 800, controlRoom, -1);
-	var controlPumpLink = createLink(controlRoom, 800, pumpRoom, -1);
-	var controlTurbineLink = createLink(controlRoom, 801, turbineRoom, -1);
-	var pumpCapLink = createLink(pumpRoom, 799, capRoom, -1);
-	var turbineCapLink = createLink(turbineRoom, 799, capRoom, -2);
-	var reactorPumpLink = createLink(reactorRoom, LINK_ID_NONE, pumpRoom, LINK_ID_NONE);
-	var reactorTurbineLink = createLink(reactorRoom, LINK_ID_NONE, turbineRoom, LINK_ID_NONE);
-	var reactorCapLink = createLink(reactorRoom, LINK_ID_NONE, capRoom, LINK_ID_NONE);
+	playerLink = createLink(getPlayerHost(), 800, controlRoom, -1);
+	controlPumpLink = createLink(controlRoom, 800, pumpRoom, -1);
+	controlTurbineLink = createLink(controlRoom, 801, turbineRoom, -1);
+	pumpCapLink = createLink(pumpRoom, 799, capRoom, -1);
+	turbineCapLink = createLink(turbineRoom, 799, capRoom, -2);
+	reactorPumpLink = createLink(reactorRoom, LINK_ID_NONE, pumpRoom, LINK_ID_NONE);
+	reactorTurbineLink = createLink(reactorRoom, LINK_ID_NONE, turbineRoom, LINK_ID_NONE);
+	reactorCapLink = createLink(reactorRoom, LINK_ID_NONE, capRoom, LINK_ID_NONE);
 	// regs
-	var rodReg = createRegister(controlRoom, 1, 5, "CTRL");
-	var pumpReg = createRegister(pumpRoom, 0, 2, "PUMP");
-	var powerReg = createRegister(turbineRoom, 2, 2, "POWR");
-	var pressureReg = createRegister(capRoom, 4, 0, "PRSS");
+	rodReg = createRegister(controlRoom, 6, 5, "CTRL");
+	pumpReg = createRegister(pumpRoom, 9, 11, "PUMP");
+	powerReg = createRegister(turbineRoom, 11, 1, "POWR");
+	pressureReg = createRegister(capRoom, 15, 5, "PRSS");
 	// inaccessible regs
-	var reactorRodRegs = [
-		createRegister(reactorRoom, 2, 2, "ROD1"),
-		createRegister(reactorRoom, 0, 2, "ROD2"),
-		createRegister(reactorRoom, 2, 0, "ROD3"),
-		createRegister(reactorRoom, 0, 0, "ROD4")
+	reactorRodRegs = [
+		createRegister(reactorRoom, 12, 6, "ROD1"),
+		createRegister(reactorRoom, 10, 6, "ROD2"),
+		createRegister(reactorRoom, 12, 4, "ROD3"),
+		createRegister(reactorRoom, 10, 4, "ROD4")
 	];
-	var activityReg = createRegister(reactorRoom, 1, 1, "GEIG");
+	activityReg = createRegister(reactorRoom, 11, 5, "GEIG");
 	// inaccessible files
-	var fuelIcon = FILE_ICON_ARCHIVE
-	var reactorFiles = [
+	var fuelIcon = FILE_ICON_ARCHIVE;
+	reactorFiles = [
 		createLockedFile(reactorRoom, 200, fuelIcon, ["FUEL"]),
 		createLockedFile(reactorRoom, 201, fuelIcon, ["FUEL"]),
 		createLockedFile(reactorRoom, 202, fuelIcon, ["FUEL"]),

@@ -6,5 +6,9 @@ all: $(BUILTS)
 	python manage.py install
 .PHONY: all
 
-nuclear-plant/built%.js: nuclear-plant/base.js nuclear-plant/puzzle%.js
-	cat $< | sed 's/$$/\r/' > $@
+clean:
+	rm -f $(BUILTS)
+.PHONY: clean
+
+nuclear-plant/built%.js: nuclear-plant/puzzle%.js nuclear-plant/base.js
+	cat nuclear-plant/base.js $< | sed 's/$$/\r/' > $@

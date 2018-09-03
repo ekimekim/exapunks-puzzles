@@ -29,6 +29,7 @@ function getDescription() {
 
 function initScenario() {
 	noChangePumpGoal = requireCustomGoal("Do not modify pump rate");
+	mergeRequirements(2, "Do not modify pump rate or allow reactor to burst");
 	powerTargetGoal = requireCustomGoal("Maintain power within 10% of the given level for " + STEADY_TIME.toString() + " cycles");
 	shutdownGoal = requireCustomGoal("When you're done, shut down the reactor");
 
@@ -41,8 +42,9 @@ function initScenario() {
 	powerTarget = randomInt(100, maxSafePower);
 
 	// Set initial conditions and add specifying file
-	specFile = createNormalFile(controlRoom, 200, FILE_ICON_DATA);
-	deleteFileGoal = requireDeleteFile(specFile, "Delete the file containing the power level");
+	specFile = createNormalFile(controlRoom, 300, FILE_ICON_DATA, [powerTarget]);
+	// Cannot add delete file goal: too many goals
+	// deleteFileGoal = requireDeleteFile(specFile, "Delete the file containing the power level");
 	pumpRate = fixedPumpRate;
 }
 
