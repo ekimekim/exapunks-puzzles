@@ -45,9 +45,9 @@ function initScenario() {
 	goalFailed = false;
 
 	noChangePumpGoal = requireCustomGoal("Do not modify pump rate");
-	mergeRequirements(2, "Do not modify pump rate or allow reactor to burst");
-	powerTargetGoal = requireCustomGoal("Maintain power within 10% of the given level for " + STEADY_TIME.toString() + " cycles");
-	shutdownGoal = requireCustomGoal("When you're done, shut down the reactor");
+	mergeRequirements(2, "Do not modify pump rate or allow reactor to burst by exceeding " + FAIL_TEMPERATURE.toString() + " pressure");
+	powerTargetGoal = requireCustomGoal("Maintain power within 10% of the level given in file 300 for at least " + STEADY_TIME.toString() + " cycles");
+	shutdownGoal = requireCustomGoal("When you are done, shut down the reactor");
 
 	goalWindow = createWindow("Power Output Status", 100, 40, 30, 3);
 
