@@ -45,7 +45,10 @@ var FAIL_TEMPERATURE = 3000;
 var SHUTDOWN_TEMPERATURE = 350;
 var SHUTDOWN_ACTIVITY = 5 * ACTIVITY_FULL_ROD_EQUALIBRIUM;
 var SHUTDOWN_TIME = 50; // cycles we must be under thresholds for
-
+var MAX_STABLE_ACTIVITY = (
+	PUMP_MAX * HEAT_LOSS_FROM_PUMP_COEFF * (FAIL_TEMPERATURE - HEAT_BASE) + HEAT_LOSS_BASE
+) / ACTIVITY_TO_TEMP_COEFF;
+var MAX_POWER = PUMP_MAX * PUMP_TO_POWER_COEFF * (FAIL_TEMPERATURE - MIN_POWER_TEMP);
 
 // Global vars
 // inputs
@@ -62,6 +65,7 @@ var reactorPumpLink, reactorTurbineLink, reactorCapLink;
 var rodReg, pumpReg, powerReg, pressureReg;
 var reactorRodRegs, activityReg, reactorFiles;
 var noExplodeGoal;
+var stateWindow;
 
 
 function initializeTestRun(testRun) {
@@ -151,6 +155,8 @@ function initializeTestRun(testRun) {
 
 	noExplodeGoal = requireCustomGoal("Do not allow the reactor to burst (pressure > " + FAIL_TEMPERATURE.toString() + ")");
 
+	stateWindow = createWindow("Reactor Readouts", 85, 0, 45, 5);
+
 	// scenario-specific init of values, set goals, etc.
 	initScenario();
 
@@ -205,7 +211,21 @@ function onCycleFinished() {
 		[pumpCapLink, turbineCapLink].forEach(function(link) {
 			modifyLink(link, LINK_ID_NONE, LINK_ID_NONE);
 		});
+		// Disable state screen
+		clearWindow(stateWindow)
+		printWindow(stateWindow, "");
+		printWindow(stateWindow, "               !!!  ERROR  !!!               ");
+		printWindow(stateWindow, "   CRITICAL FAILURE IN REACTOR CONTAINMENT   ");
+		return;
 	}
+
+	// Update state window
+	clearWindow(stateWindow);
+	drawGauge(stateWindow, 45, "   Pump Rate", pumpRate, PUMP_MAX);
+	drawGauge(stateWindow, 45, "Control Rods", rodPosition, ROD_MAX);
+	drawGauge(stateWindow, 45, "    Activity", activity, MAX_STABLE_ACTIVITY);
+	drawGauge(stateWindow, 45, "    Pressure", temperature, FAIL_TEMPERATURE);
+	drawGauge(stateWindow, 45, "       Power", power, MAX_POWER);
 
 	onCycle();
 
@@ -219,6 +239,35 @@ function onCycleFinished() {
 		shutdownCycles = 0;
 	}
 
+}
+
+
+function drawGauge(window, width, name, value, max_value) {
+	var max_val_len = 5;
+	width -= name.length + max_val_len + 3;
+	var gaugelen = Math.round(width * clamp(0, value / max_value, 1));
+	var gauge = rightPad(repeatStr("|", gaugelen), width);
+	var text = name + leftPad(Math.round(value).toString(), max_val_len) + " [" + gauge + "]";
+	printWindow(window, text);
+}
+
+
+function leftPad(text, width) {
+	return repeatStr(" ", width - text.length) + text;
+}
+
+
+function rightPad(text, width) {
+	return text + repeatStr(" ", width - text.length);
+}
+
+
+function repeatStr(text, times) {
+	var s = "";
+	for (var i = 0; i < times; i++) {
+		s += text;
+	}
+	return s;
 }
 
 
