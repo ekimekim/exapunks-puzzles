@@ -8,6 +8,7 @@ var STEADY_TIME = 1000;
 var powerTarget;
 var onTargetCycles;
 var goalReached;
+var goalFailed;
 
 // objects
 var noChangePumpGoal;
@@ -15,6 +16,7 @@ var powerTargetGoal;
 var shutdownGoal;
 var deleteFileGoal;
 var specFile;
+var goalWindow;
 
 
 function getTitle() {
@@ -30,11 +32,14 @@ function getDescription() {
 function initScenario() {
 	onTargetCycles = 0;
 	goalReached = false;
+	goalFailed = false;
 
 	noChangePumpGoal = requireCustomGoal("Do not modify pump rate");
 	mergeRequirements(2, "Do not modify pump rate or allow reactor to burst");
 	powerTargetGoal = requireCustomGoal("Maintain power within 10% of the given level for " + STEADY_TIME.toString() + " cycles");
 	shutdownGoal = requireCustomGoal("When you're done, shut down the reactor");
+
+	goalWindow = createWindow("Power Output Status", 100, 40, 30, 3);
 
 	// Randomise targets
 	fixedPumpRate = randomInt(10, 100);
@@ -55,28 +60,51 @@ function initScenario() {
 function onWrite(reg) {
 	if (reg === pumpReg) {
 		setCustomGoalFailed(noChangePumpGoal);
+		goalFailed = true;
 	}
 }
 
 
 function onCycle() {
+	var status;
+
 	if (goalReached) { return; }
 
-	if (clamp(powerTarget * 0.9, power, powerTarget * 1.1) === power) {
+	if (power < powerTarget * 0.9) {
+		status = "TOO LOW";
+		onTargetCycles = 0;
+	} else if (power > powerTarget * 1.1) {
+		status = "TOO HIGH";
+		onTargetCycles = 0;
+	} else {
+		status = "PASSING";
 		onTargetCycles++;
 		if (onTargetCycles >= STEADY_TIME) {
 			onTargetCycles = 0;
 			goalReached = true;
-			setCustomGoalCompleted(powerTargetGoal)
+			setCustomGoalCompleted(powerTargetGoal);
+			status = "COMPLETE";
 		}
-	} else {
-		onTargetCycles = 0;
 	}
+
+	clearWindow(goalWindow);
+	printWindow(goalWindow, "Output Status: " + status);
+	if (status === "PASSING") {
+		drawGauge(goalWindow, 30, "Time", onTargetCycles, 1000);
+	}
+
+}
+
+
+function onExplode() {
+	clearWindow(goalWindow);
+	printWindow(goalWindow, "Output Status: ERROR");
+	goalFailed = true;
 }
 
 
 function onShutdown() {
-	if (!goalReached) { return; }
+	if (goalFailed || !goalReached) { return; }
 
 	setCustomGoalCompleted(shutdownGoal);
 	setCustomGoalCompleted(noChangePumpGoal);

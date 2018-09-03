@@ -22,5 +22,9 @@ function onCycle() {
 }
 
 
+function onExplode() {
+}
+
+
 function onShutdown() {
 }

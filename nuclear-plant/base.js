@@ -20,6 +20,8 @@ function getSubtitle() {
 			Reg will be one of rodReg or pumpReg.
 		onCycle()
 			Called during onCycleFinished(), unless reactor has exploded.
+		onExplode()
+			Called when reactor explodes. Useful to clear screens, etc.
 		onShutdown()
 			Called each cycle the reactor is counted as "shut down", with activity
 			and heat below thresholds for 50 cycles in a row.
@@ -216,6 +218,8 @@ function onCycleFinished() {
 		printWindow(stateWindow, "");
 		printWindow(stateWindow, "               !!!  ERROR  !!!               ");
 		printWindow(stateWindow, "   CRITICAL FAILURE IN REACTOR CONTAINMENT   ");
+
+		onExplode();
 		return;
 	}
 
