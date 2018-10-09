@@ -78,7 +78,7 @@ function onCycle() {
 
 	// Random human inputs every N cycles - either change flow rate or rods
 	if (inputCountdown-- < 0) {
-		inputCountdown = randomInt(30, 60);
+		inputCountdown = randomInt(20, 40);
 		if (randomBool(0.25)) {
 			if (pumpRate == 0) {
 				down = false;
@@ -108,7 +108,7 @@ function onCycle() {
 			}
 			if (down) {
 				direction = "retracted";
-				change = randomInt(20, 50);
+				change = randomInt(30, 50);
 				rodMotor = 50 - change;
 			} else {
 				direction = "inserted";
