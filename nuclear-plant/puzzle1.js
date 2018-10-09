@@ -15,7 +15,7 @@ var logWindow;
 
 
 function getTitle() {
-	return "REACTOR REGULATOR 1";
+	return "REACTOR 1: MONITOR";
 }
 
 
@@ -78,7 +78,7 @@ function onCycle() {
 
 	// Random human inputs every N cycles - either change flow rate or rods
 	if (inputCountdown-- < 0) {
-		inputCountdown = randomInt(30, 70);
+		inputCountdown = randomInt(30, 60);
 		if (randomBool(0.25)) {
 			if (pumpRate == 0) {
 				down = false;

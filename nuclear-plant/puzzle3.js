@@ -1,7 +1,7 @@
 
 
 function getTitle() {
-	return "REACTOR REGULATOR 3";
+	return "REACTOR 3: MANAGER";
 }
 
 

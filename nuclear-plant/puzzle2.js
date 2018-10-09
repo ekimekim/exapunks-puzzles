@@ -19,7 +19,7 @@ var goalWindow;
 
 
 function getTitle() {
-	return "REACTOR REGULATOR 2";
+	return "REACTOR 2: REGULATOR";
 }
 
 
