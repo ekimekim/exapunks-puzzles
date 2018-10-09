@@ -14,7 +14,6 @@ var goalFailed;
 var noChangePumpGoal;
 var powerTargetGoal;
 var shutdownGoal;
-var deleteFileGoal;
 var specFile;
 var goalWindow;
 
@@ -61,8 +60,6 @@ function initScenario() {
 
 	// Set initial conditions and add specifying file
 	specFile = createNormalFile(controlRoom, 300, FILE_ICON_DATA, [powerTarget]);
-	// Cannot add delete file goal: too many goals
-	// deleteFileGoal = requireDeleteFile(specFile, "Delete the file containing the power level");
 	pumpRate = fixedPumpRate;
 }
 
