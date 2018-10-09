@@ -52,7 +52,7 @@ function initScenario() {
 
 	// Randomise targets
 	fixedPumpRate = randomInt(10, 100);
-	maxSafeTemperature = FAIL_TEMPERATURE - 500
+	maxSafeTemperature = FAIL_TEMPERATURE - HEAT_SAFETY_MARGIN
 	maxSafePower = fixedPumpRate * PUMP_TO_POWER_COEFF * (maxSafeTemperature - MIN_POWER_TEMP)
 	// Note 100 min power will always be < maxSafePower and hopefully far enough from 0 to avoid
 	// doing weird things to players' code due to clipping.
@@ -97,7 +97,7 @@ function onCycle() {
 	clearWindow(goalWindow);
 	printWindow(goalWindow, "Output Status: " + status);
 	if (status === "PASSING") {
-		drawGauge(goalWindow, 30, "Time", onTargetCycles, 1000);
+		drawGauge(goalWindow, 30, "Time", onTargetCycles, STEADY_TIME);
 	}
 
 }
