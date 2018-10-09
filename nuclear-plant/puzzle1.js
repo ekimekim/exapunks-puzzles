@@ -45,7 +45,7 @@ function initScenario() {
 	noChangeControlsGoal = requireCustomGoal("Do not modify the pump or control rods until needed");
 	scramGoal = requireCustomGoal("When pressure exceeds value given in file 300, shut down the reactor.");
 
-	safePressure = randomInt(20, 27) * 100;
+	safePressure = randomInt(20, 25) * 100;
 	specFile = createNormalFile(controlRoom, 300, FILE_ICON_DATA, [safePressure]);
 
 	logWindow = createWindow("Operator Log", 90, 40, 40, 3);
@@ -78,8 +78,8 @@ function onCycle() {
 
 	// Random human inputs every N cycles - either change flow rate or rods
 	if (inputCountdown-- < 0) {
-		inputCountdown = randomInt(20, 40);
-		if (randomBool(0.25)) {
+		inputCountdown = randomInt(10, 20);
+		if (randomBool(0.1)) {
 			if (pumpRate == 0) {
 				down = false;
 			} else if (pumpRate == 100) {
@@ -89,11 +89,11 @@ function onCycle() {
 			}
 			if (down) {
 				direction = "down";
-				change = randomInt(10, 30);
+				change = randomInt(20, 60);
 				pumpRate -= change;
 			} else {
 				direction = "up";
-				change = randomInt(10, 30);
+				change = randomInt(20, 60);
 				pumpRate += change;
 			}
 			pumpRate = clamp(0, pumpRate, 100);
@@ -101,7 +101,7 @@ function onCycle() {
 		} else {
 			if (rodPosition == 1000) {
 				down = true;
-			} else if (rodPosition == 0) {
+			} else if (rodPosition < 150) {
 				down = false;
 			} else {
 				down = randomBool(0.8)
